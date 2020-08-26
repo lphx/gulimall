@@ -4,7 +4,12 @@ spring:
     password: root
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://192.168.31.25:3306/gulimall-pms?useUnicode=true&characterEncoding=utf-8&useSSL=false
-
+  cloud:
+    alicloud:
+      access-key: LTAI4G1ftyNGznEBecjMAhnH
+      secret-key: VzFx2o6mYRqGsRGgxGtcwCls5NhD7I
+      oss:
+        endpoint: oss-cn-shenzhen.aliyuncs.com
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
