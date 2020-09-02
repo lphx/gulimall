@@ -1,7 +1,11 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,6 +23,9 @@ import com.atguigu.gulimall.product.service.CategoryService;
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
+
+    @Autowired
+    CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -47,6 +54,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     public void removeMenuByIds(List<Long> asList) {
         baseMapper.deleteBatchIds(asList);
+    }
+
+    @Override
+    public Long[] findCategoryPath(Long categoryId) {
+        List<Long> paths = new ArrayList<>();
+        List<Long> path = findParenPath(categoryId, paths);
+
+        Collections.reverse(path);
+
+        return (Long[])path.toArray(new Long[path.size()]);
+    }
+
+    /**
+     * 级联更新所有关联数据
+     * @param category
+     */
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+    }
+
+    private List<Long> findParenPath(Long categoryId,List<Long> paths){
+        paths.add(categoryId);
+        CategoryEntity categoryEntity = this.getById(categoryId);
+        if (categoryEntity.getParentCid() != 0){
+            findParenPath(categoryEntity.getParentCid(),paths);
+        }
+        return paths;
     }
 
     private List<CategoryEntity> getChildrens(CategoryEntity root, List<CategoryEntity> all) {
